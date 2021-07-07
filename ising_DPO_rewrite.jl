@@ -61,6 +61,32 @@ ising_states = [a,b,c]
 
 h_vec = [calculate_hamiltonian(1.0, 0.1, state) for state in ising_states]
 
+# Manual creation of one rewrite rule
+R = @acset IsingModel begin
+  V1=4
+  V2=1
+  E=4
+  p=[1,2,3,4]
+  q=[5,5,5,5]
+  # no V2s, so no Es or L2s
+end
+I = @acset IsingModel begin
+  V1=4
+  V2=0
+  # no edges at all in the interface
+end
+R = @acset IsingModel begin
+  V1=5
+  V2=0
+  L1=4
+  src1=[1,2,3,4]
+  tgt1=[5,5,5,5]
+  # no V2s, so no Es or L2s
+end
+
+l = ACSetTransformation(I, L, V1=[1,2,3,4]);
+r = ACSetTransformation(I, R, V1=[1,2,3,4]);
+
 
 
 
