@@ -2,6 +2,7 @@ using IsingCats
 using Test
 
 using Catlab, Catlab.Theories, Catlab.CategoricalAlgebra, Catlab.CategoricalAlgebra.CSets
+import Catlab.Graphics: to_graphviz
 
 # Create an instance of that schema
 @testset "Constructors" begin
@@ -77,3 +78,13 @@ r = ACSetTransformation(I, R, V1=[1,2,3,4]);
 @test is_natural(r)
 
 end
+
+
+b = IsingModel()
+add_parts!(b, :V1, 4)
+add_parts!(b, :V2, 2)
+add_parts!(b, :E, 2, p=[2,4], q=[1,2])
+add_parts!(b, :L1, 4, src1=[1,2,4,3], tgt1=[2,4,3,1])
+add_parts!(b, :L2, 1, src2=[1], tgt2=[2])
+
+to_graphviz(b)
