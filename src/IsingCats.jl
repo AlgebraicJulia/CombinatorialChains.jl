@@ -11,7 +11,7 @@ function calculate_hamiltonian(J::Number, μ::Number, ising_model::CSet)
   return J * length(ising_model.tables.E) - μ * (length(ising_model.tables.V1) - length(ising_model.tables.V2))
 end
 
-# Shema for the (two state) Ising model 
+# Schema for the (two state) Ising model 
 @present SchemaIsingModel(FreeSchema) begin
   V1::Ob
   V2::Ob
