@@ -29,6 +29,7 @@ end
 
 # Make it into a type??
 const AbstractIsingModel = AbstractACSetType(SchemaIsingModel)
+
 const IsingModel = ACSetType(SchemaIsingModel, index=[:src1,:tgt1,:src2,:tgt2])
 
 function to_graphviz(j::AbstractIsingModel;
@@ -85,4 +86,28 @@ function to_graphviz(j::AbstractIsingModel;
 end
 
 include("ConjuctionQueryHomomorphism.jl")
+
+def generate_state(N::int):
+
+
+def rewrite_ising(j::AbstractIsingModel):
+  # Pick a point in IsingModel and get subgraph
+  N = nparts(j, :V1) + nparts(j, :V2)
+
+  v = rand(1:N)
+
+  # Get subgrap by looking at vertices it shares edges with
+  g = subpart(v, )
+  # Make switch rule by changing original chosen vertexes color
+  R =
+  # Graph query to find possible matches
+  g_query = homomorphism_query(g)
+
+  q = query(j, g_query)
+
+  α = make_homomorphism(q[1],g,j)
+
+  # Rewrite
+  rewrite_match(g, R, α)
+
 end
