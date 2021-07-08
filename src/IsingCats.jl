@@ -2,16 +2,18 @@ module IsingCats
 
 using Catlab, Catlab.Theories, Catlab.CategoricalAlgebra, Catlab.CategoricalAlgebra.CSets
 using Catlab.CategoricalAlgebra.DPO, Catlab.Graphs, Catlab.Present, Catlab.Graphics
+using Random
 import Catlab.Graphics: to_graphviz
 
 
 export IsingModel, SchemaIsingModel, calculate_hamiltonian
 
-function calculate_hamiltonian(J::Number, μ::Number, ising_model::CSet)
+function calculate_hamiltonian(ising_model::CSet, J::Number=1, μ::Number=0.1)
   return J * length(ising_model.tables.E) - μ * (length(ising_model.tables.V1) - length(ising_model.tables.V2))
 end
 
-# Schema for the (two state) Ising model 
+
+# Shema for the (two state) Ising model 
 @present SchemaIsingModel(FreeSchema) begin
   V1::Ob
   V2::Ob

@@ -46,7 +46,7 @@ add_parts!(c, :L2, 4, src2=[1,2,4,3], tgt2=[2,4,3,1])
 
 ising_states = [a,b,c]
 
-@test [-0.6000000000000001, 1.8, 2.2] == [calculate_hamiltonian(1.0, 0.1, state) for state in ising_states]
+@test [-0.6000000000000001, 1.8, 2.2] == [calculate_hamiltonian(state) for state in ising_states]
 end
 
 
