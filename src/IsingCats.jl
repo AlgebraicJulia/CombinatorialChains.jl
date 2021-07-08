@@ -87,27 +87,29 @@ end
 
 include("ConjuctionQueryHomomorphism.jl")
 
-def generate_state(N::int):
+function generate_state(N::int):
+end
+
+function rewrite_ising(j::AbstractIsingModel, rewrite_rules):
+
+  dpo_search = true
+
+  while dpo_search:
+    # Compute table of matches
+    span = rewrite_rules[rand(1:length(reqrite_rules))]
+    qₗ = homomorphism_query(codom(left(span)))
+    matches = query(b, qₗ)
+    α = make_homomorphism(matches[rand(1:length(rewrite_rules))], codom(left(span)), j)
+
+    if valid_dpo(left(span), α):
+      # Rewrite
+      rewrite_match(α, right(span), left(span))
+      dpo_search = false
+
+    end
+  end
 
 
-def rewrite_ising(j::AbstractIsingModel):
-  # Pick a point in IsingModel
-  N = nparts(j, :V1) + nparts(j, :V2)
-
-  v = rand(1:N)
-
-  # Get subgraph by looking at vertices it shares edges with
-  g = subpart(v, )
-  # Make switch rule by changing original chosen vertex's color
-  R =
-  # Graph query to find possible matches
-  g_query = homomorphism_query(g)
-
-  q = query(j, g_query)
-
-  α = make_homomorphism(q[1],g,j)
-
-  # Rewrite
-  rewrite_match(g, R, α)
+end
 
 end
