@@ -84,4 +84,5 @@ function to_graphviz(j::AbstractIsingModel;
   return to_graphviz(pg)
 end
 
+include("ConjuctionQueryHomomorphism.jl")
 end

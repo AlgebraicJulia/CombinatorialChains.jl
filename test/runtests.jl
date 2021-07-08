@@ -1,7 +1,9 @@
 using IsingCats
+using IsingCats.ConjunctiveQueryHomomorphism
 using Test
 
 using Catlab, Catlab.Theories, Catlab.CategoricalAlgebra, Catlab.CategoricalAlgebra.CSets
+using Catlab.WiringDiagrams
 import Catlab.Graphics: to_graphviz
 
 # Create an instance of that schema
@@ -80,11 +82,54 @@ r = ACSetTransformation(I, R, V1=[1,2,3,4]);
 end
 
 
-b = IsingModel()
-add_parts!(b, :V1, 4)
-add_parts!(b, :V2, 2)
-add_parts!(b, :E, 2, p=[2,4], q=[1,2])
-add_parts!(b, :L1, 4, src1=[1,2,4,3], tgt1=[2,4,3,1])
-add_parts!(b, :L2, 1, src2=[1], tgt2=[2])
+@testset "Conjunctive Queries" begin
+  a = @acset IsingModel begin
+    V1 = 2
+    E = 2
+    V2 = 2
+    p = [1,2]
+    q = [1,2]
+  end
+  qₐ = homomorphism_query(a)
+  @test nparts(qₐ, :Box) == 6
+  @test nparts(qₐ, :Port) == 10
+  @test nparts(qₐ, :OuterPort) == 6
+  @test nparts(qₐ, :Junction) == 6
 
+
+  matches = query(b, qₐ)
+  @test length(matches) == 4
+  for i in 1:length(matches)
+    @test is_natural(make_homomorphism(matches[i], a, b))
+  end
+
+end
+
+
+a = @acset IsingModel begin
+  V1 = 2
+  E = 2
+  V2 = 2
+  p = [1,2]
+  q = [1,2]
+end
+
+b = @acset IsingModel begin
+  V1 = 4
+  E = 2
+  V2 =2
+  L1 = 4
+  L2 = 1
+  src1 = [1,2,4,3]
+  tgt1 = [2,4,3,1]
+  p = [4,2]
+  q = [2,1]
+  src2 = 1
+  tgt2 = 2
+end
+
+to_graphviz(a)
 to_graphviz(b)
+to_graphviz(homomorphism_query(a), junction_labels=:variable, box_labels=:name)
+  # to_graphviz(homomorphism_query(homomorphism_query(a)), junction_labels=:variable, box_labels=:name)
+
