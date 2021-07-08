@@ -1,4 +1,4 @@
-module IsingChain
+module IsingCats
 
 using Catlab, Catlab.Theories, Catlab.CategoricalAlgebra, Catlab.CategoricalAlgebra.CSets
 using Catlab.CategoricalAlgebra.DPO, Catlab.Graphs, Catlab.Present, Catlab.Graphics
@@ -126,6 +126,7 @@ function rewrite_ising(j::AbstractIsingModel, rewrite_rules, T):
 
 end
 
-function find_equilibrium():
+function find_equilibrium()
+end
 
 end
