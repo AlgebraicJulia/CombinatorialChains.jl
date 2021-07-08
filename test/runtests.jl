@@ -1,5 +1,5 @@
-using IsingCats
-using IsingCats.ConjunctiveQueryHomomorphism
+using IsingChain
+using IsingChain.ConjunctiveQueryHomomorphism
 using Test
 
 using Catlab, Catlab.Theories, Catlab.CategoricalAlgebra, Catlab.CategoricalAlgebra.CSets

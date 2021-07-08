@@ -1,15 +1,12 @@
-module IsingCats
+module IsingChain
 
 using Catlab, Catlab.Theories, Catlab.CategoricalAlgebra, Catlab.CategoricalAlgebra.CSets
 using Catlab.CategoricalAlgebra.DPO, Catlab.Graphs, Catlab.Present, Catlab.Graphics
 import Catlab.Graphics: to_graphviz
 
+include("ConjuctionQueryHomomorphism.jl")
 
 export IsingModel, SchemaIsingModel, calculate_hamiltonian
-
-function calculate_hamiltonian(J::Number, μ::Number, ising_model::CSet)
-  return J * length(ising_model.tables.E) - μ * (length(ising_model.tables.V1) - length(ising_model.tables.V2))
-end
 
 # Schema for the (two state) Ising model
 @present SchemaIsingModel(FreeSchema) begin
@@ -27,7 +24,6 @@ end
 
 end
 
-# Make it into a type??
 const AbstractIsingModel = AbstractACSetType(SchemaIsingModel)
 
 const IsingModel = ACSetType(SchemaIsingModel, index=[:src1,:tgt1,:src2,:tgt2])
@@ -85,12 +81,30 @@ function to_graphviz(j::AbstractIsingModel;
   return to_graphviz(pg)
 end
 
-include("ConjuctionQueryHomomorphism.jl")
-
-function generate_state(N::int):
+function calculate_hamiltonian(J::Number, μ::Number, ising_model::CSet)
+  return J * length(ising_model.tables.E) - μ * (length(ising_model.tables.V1) - length(ising_model.tables.V2))
 end
 
-function rewrite_ising(j::AbstractIsingModel, rewrite_rules):
+function ΔE(span)
+end
+
+function generate_state(N::int)
+end
+
+function accept_rewrite(rewrite_span, T)
+
+    ΔE = ΔE(rewrite_span)
+
+    if ΔE < 0:
+        return true
+
+    elif exp(-ΔE/(T))>rand(Float64, 2):
+        return true
+    else:
+        return false
+ end
+
+function rewrite_ising(j::AbstractIsingModel, rewrite_rules, T):
 
   dpo_search = true
 
@@ -101,7 +115,7 @@ function rewrite_ising(j::AbstractIsingModel, rewrite_rules):
     matches = query(b, qₗ)
     α = make_homomorphism(matches[rand(1:length(rewrite_rules))], codom(left(span)), j)
 
-    if valid_dpo(left(span), α):
+    if valid_dpo(left(span), α) and accept_rewrite(span, T):
       # Rewrite
       rewrite_match(α, right(span), left(span))
       dpo_search = false
