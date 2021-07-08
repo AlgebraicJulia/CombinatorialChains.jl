@@ -91,14 +91,14 @@ def generate_state(N::int):
 
 
 def rewrite_ising(j::AbstractIsingModel):
-  # Pick a point in IsingModel and get subgraph
+  # Pick a point in IsingModel
   N = nparts(j, :V1) + nparts(j, :V2)
 
   v = rand(1:N)
 
-  # Get subgrap by looking at vertices it shares edges with
+  # Get subgraph by looking at vertices it shares edges with
   g = subpart(v, )
-  # Make switch rule by changing original chosen vertexes color
+  # Make switch rule by changing original chosen vertex's color
   R =
   # Graph query to find possible matches
   g_query = homomorphism_query(g)
