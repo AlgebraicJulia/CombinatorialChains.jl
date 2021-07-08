@@ -126,4 +126,6 @@ function rewrite_ising(j::AbstractIsingModel, rewrite_rules, T):
 
 end
 
+function find_equilibrium():
+
 end
