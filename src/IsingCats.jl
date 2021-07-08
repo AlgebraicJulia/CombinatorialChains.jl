@@ -11,7 +11,7 @@ function calculate_hamiltonian(J::Number, μ::Number, ising_model::CSet)
   return J * length(ising_model.tables.E) - μ * (length(ising_model.tables.V1) - length(ising_model.tables.V2))
 end
 
-# Schema for the (two state) Ising model 
+# Schema for the (two state) Ising model
 @present SchemaIsingModel(FreeSchema) begin
   V1::Ob
   V2::Ob
@@ -24,12 +24,12 @@ end
   tgt2::Hom(L2,V2)
   p::Hom(E, V1)
   q::Hom(E, V2)
-  
+
 end
 
 # Make it into a type??
 const AbstractIsingModel = AbstractACSetType(SchemaIsingModel)
-const IsingModel = ACSetType(SchemaIsingModel, index=[:src1,:tgt1,:src2,:tgt2]) 
+const IsingModel = ACSetType(SchemaIsingModel, index=[:src1,:tgt1,:src2,:tgt2])
 
 function to_graphviz(j::AbstractIsingModel;
   prog::AbstractString="neato", graph_attrs::AbstractDict=Dict(),
