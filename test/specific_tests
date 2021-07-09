@@ -1,0 +1,37 @@
+Rule 3 works nicely:
+
+  J₀ = @acset IsingModel begin 
+    V1 = 8
+    V2 = 1
+    L1 = 9
+    E = 3
+    src1 = [2,3,4,6,5,8,1,1,1]
+    tgt1 = [3,4,6,7,8,7,3,6,8]
+    q = [1,1,1]
+    p = [1,2,5]
+  end
+  to_graphviz(J₀)
+
+  m = homomorphisms(codom(rule(3)[1]), J₀, monic=true)[1]
+  J₁ = rewrite_match(rule(3)..., m)
+  #to_graphviz(codom(ruler(1)))
+  to_graphviz(J₁)
+
+This has strange behavior:
+
+  J₀ = @acset IsingModel begin 
+    V2 = 8
+    V1 = 1
+    L2 = 9
+    E = 3
+    src2 = [2,3,4,6,5,8,1,1,1]
+    tgt2 = [3,4,6,7,8,7,3,6,8]
+    p = [1,1,1]
+    q = [1,2,5]
+  end
+  to_graphviz(J₀)
+
+  m = homomorphisms(codom(rule(1)[2]), J₀, monic=true)[1]
+  J₁ = rewrite_match(rule(1)..., m)
+  #to_graphviz(codom(ruler(1)))
+  to_graphviz(J₁)
