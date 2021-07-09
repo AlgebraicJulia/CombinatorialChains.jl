@@ -8,7 +8,7 @@ include("ConjuctionQueryHomomorphism.jl")
 
 export IsingModel, SchemaIsingModel,SymmetricIsingModel, SymmetricSchemaIsingModel,
 calculate_hamiltonian, ising_state_accept, ΔE, p_transition, rulel, ruler, rule,
-rewrite_ising
+rewrite_ising, accept_rewrite
 
 
 # Schema for the (two state) Ising model
@@ -201,10 +201,10 @@ end
 
 function accept_rewrite(rewrite_span, T)
 
-    ΔE = ΔE(rewrite_span)
-    if ΔE < 0
+    Δ = ΔE(codom(rewrite_span[1]), codom(rewrite_span[2]))
+    if Δ < 0
         return true
-    elseif exp(-ΔE/(T))>rand(Float64, 2)
+    elseif exp(-Δ/(T))>rand(Float64, 2)
         return true
     else
         return false
