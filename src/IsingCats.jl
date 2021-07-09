@@ -4,6 +4,7 @@ using Catlab, Catlab.Theories, Catlab.CategoricalAlgebra, Catlab.CategoricalAlge
 using Catlab.CategoricalAlgebra.DPO, Catlab.Graphs, Catlab.Present, Catlab.Graphics
 import Catlab.Graphics: to_graphviz
 
+include("ConjuctionQueryHomomorphism.jl")
 
 export IsingModel, SchemaIsingModel, calculate_hamiltonian, ising_state_accept
 
@@ -23,7 +24,7 @@ function ising_state_accept(state1::CSet, state2::CSet, β::Float64 = 0.42)
 end
 
 
-# Schema for the (two state) Ising model 
+# Schema for the (two state) Ising model
 @present SchemaIsingModel(FreeSchema) begin
   V1::Ob
   V2::Ob
@@ -36,12 +37,14 @@ end
   tgt2::Hom(L2,V2)
   p::Hom(E, V1)
   q::Hom(E, V2)
-  
+
 end
 
 # Create abstract and concrete types for IsingModel
+
 const AbstractIsingModel = AbstractACSetType(SchemaIsingModel)
-const IsingModel = ACSetType(SchemaIsingModel, index=[:src1,:tgt1,:src2,:tgt2]) 
+
+const IsingModel = ACSetType(SchemaIsingModel, index=[:src1,:tgt1,:src2,:tgt2])
 
 function to_graphviz(j::AbstractIsingModel;
   prog::AbstractString="neato", graph_attrs::AbstractDict=Dict(),
@@ -96,5 +99,52 @@ function to_graphviz(j::AbstractIsingModel;
   return to_graphviz(pg)
 end
 
-include("ConjuctionQueryHomomorphism.jl")
+function calculate_hamiltonian(J::Number, μ::Number, ising_model::CSet)
+  return J * length(ising_model.tables.E) - μ * (length(ising_model.tables.V1) - length(ising_model.tables.V2))
+end
+
+function ΔE(span)
+end
+
+function generate_state(N::int)
+end
+
+function accept_rewrite(rewrite_span, T)
+
+    ΔE = ΔE(rewrite_span)
+
+    if ΔE < 0:
+        return true
+
+    elif exp(-ΔE/(T))>rand(Float64, 2):
+        return true
+    else:
+        return false
+ end
+
+function rewrite_ising(j::AbstractIsingModel, rewrite_rules, T):
+
+  dpo_search = true
+
+  while dpo_search:
+    # Compute table of matches
+    span = rewrite_rules[rand(1:length(reqrite_rules))]
+    qₗ = homomorphism_query(codom(left(span)))
+    matches = query(b, qₗ)
+    α = make_homomorphism(matches[rand(1:length(rewrite_rules))], codom(left(span)), j)
+
+    if valid_dpo(left(span), α) and accept_rewrite(span, T):
+      # Rewrite
+      rewrite_match(α, right(span), left(span))
+      dpo_search = false
+
+    end
+  end
+
+
+end
+
+function find_equilibrium()
+end
+
 end

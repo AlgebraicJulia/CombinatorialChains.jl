@@ -90,6 +90,21 @@ end
     p = [1,2]
     q = [1,2]
   end
+
+  b = @acset IsingModel begin
+    V1 = 4
+    E = 2
+    V2 =2
+    L1 = 4
+    L2 = 1
+    src1 = [1,2,4,3]
+    tgt1 = [2,4,3,1]
+    p = [4,2]
+    q = [2,1]
+    src2 = 1
+    tgt2 = 2
+  end
+
   qₐ = homomorphism_query(a)
   @test nparts(qₐ, :Box) == 6
   @test nparts(qₐ, :Port) == 10
@@ -167,4 +182,3 @@ to_graphviz(a)
 to_graphviz(b)
 to_graphviz(homomorphism_query(a), junction_labels=:variable, box_labels=:name)
   # to_graphviz(homomorphism_query(homomorphism_query(a)), junction_labels=:variable, box_labels=:name)
-
