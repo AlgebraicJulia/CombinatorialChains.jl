@@ -322,4 +322,4 @@ end
 
   to_graphviz(J₀)
 
-end 
+end
