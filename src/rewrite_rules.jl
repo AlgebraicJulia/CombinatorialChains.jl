@@ -16,8 +16,11 @@ function rulel(i::Integer)
   L[:, :src1] = 1
   L[:, :tgt1] = 2:nparts(L,:V1)
 
-  h1 = 2:nparts(L,:V1)
+  h1 = i > 0 ? (2:nparts(L,:V1)) : Int[]
   h2 = 1:4-i
+
+  @assert length(h1) == nparts(I, :V1)
+  @assert length(h2) == nparts(I, :V2)
 
   l = ACSetTransformation(I, L, V1=h1, V2=h2);
   return l
@@ -41,8 +44,18 @@ function ruler(i::Integer)
   R[:, :src2] = nparts(R,:V2)
   R[:, :tgt2] = 1:nparts(R,:V2)-1
 
-  h1 = 2:nparts(R,:V1)
+  h1 = 1:nparts(R,:V1)
   h2 = 1:4-i
+
+  # @show h1
+  # @show h2
+
+  # @show nparts(I, :V1)
+  # @show nparts(I, :V2)
+
+  @assert length(h1) == nparts(I, :V1)
+  @assert length(h2) == nparts(I, :V2)
+
 
   r = ACSetTransformation(I, R, V1=h1, V2=h2);
   return r
