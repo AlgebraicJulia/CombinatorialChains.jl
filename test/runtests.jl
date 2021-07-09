@@ -1,4 +1,3 @@
-#include("../src/IsingCats.jl")
 using IsingCats
 using IsingCats.ConjunctiveQueryHomomorphism
 using Test
@@ -229,7 +228,7 @@ end
   end
   to_graphviz(J₀)
 
-  J₀ = @acset IsingModel begin 
+  J₀ = @acset IsingModel begin
     V1 = 9
     L1 = 12
     src1 = [1,2,5,5,5,5,7,8,3,6,1,4]
@@ -241,61 +240,86 @@ end
   to_graphviz(J₁)
 
 
-#   function rewrite_ising(j::IsingCats.AbstractIsingModel, T, maxtries=100)
-#     # choose a random rule
-#     k = 0
-#     while k < maxtries
-#       l,r = rule(rand(0:4))
-#       # l,r = rule(4)
-#       if rand(Bool)
-#         r,l = l,r
-#       end
-#
-#       qₗ = homomorphism_query(codom(l))
-#       matches = query(j, qₗ)
-#       @show length(matches)
-#
-#       αs = map(ρ -> make_homomorphism(matches[ρ], codom(l), j),
-#          1:length(matches))
-#
-#
-#       # quick hack for "monic on V1"
-#       αs = filter(αs) do α
-#         length(unique(collect(components(α).V1))) == length(collect(components(α).V1))
-#       end
-#
-#       @show length(αs)
-#       for α in αs
-#         println(components(α).V1)
-#       end
-#
-#       αs = filter(α->valid_dpo(l, α), αs)
-#       @show length(αs)
-#
-#       if length(αs) > 0
-#
-#         for i in 1:maxtries
-#           # compute table of matches
-#           # pick random match
-#           @show ρ = rand(1:length(αs))
-#           α = αs[ρ]
-#           @show components(α)
-#           @show valid_dpo(l, α)
-#
-#           if valid_dpo(l, α) && accept_rewrite((l,r), T)
-#             @show
-#             # Rewrite
-#             rewrite_match(α, l, r)
-#             return α
-#           end
-#         end
-#         k+=1
-#       end
-#     end
-#
-#     error("Could not find a valid match in $maxtries attempts")
-#   end
-#
-#   J = rewrite_ising(J₀, 2, 4)
-#   to_graphviz(J)
-# end
+  function rewrite_ising(j::IsingCats.AbstractIsingModel, T, maxtries=100)
+    # choose a random rule
+      l,r = rule(rand(0:4))
+      # l,r = rule(4)
+      if rand(Bool)
+        r,l = l,r
+      end
+
+      qₗ = homomorphism_query(codom(l))
+      matches = query(j, qₗ)
+      @show length(matches)
+
+      αs = map(ρ -> make_homomorphism(matches[ρ], codom(l), j),
+         1:length(matches))
+
+
+      # quick hack for "monic on V1"
+      αs = filter(αs) do α
+        length(unique(collect(components(α).V1))) == length(collect(components(α).V1))
+      end
+
+      @show length(αs)
+      for α in αs
+        println(components(α).V1)
+      end
+
+      αs = filter(α->valid_dpo(l, α), αs)
+      @show length(αs)
+
+      if length(αs) > 0
+
+        for i in 1:maxtries
+          # compute table of matches
+          # pick random match
+          @show ρ = rand(1:length(αs))
+          α = αs[ρ]
+          @show components(α)
+          @show valid_dpo(l, α)
+
+          if valid_dpo(l, α) && accept_rewrite((l,r), T)
+            @show
+            # Rewrite
+            rewrite_match(α, l, r)
+            return α
+          end
+        end
+    end
+
+    error("Could not find a valid match in $maxtries attempts")
+  end
+
+  J = rewrite_ising(J₀, 2, 4)
+  to_graphviz(J)
+end
+
+function run_ising(j::IsingCats.AbstractIsingModel, T, n::Int, f::function)
+  vals = zeros(0)
+  for i in 1:n
+    rewrite_ising(j, T)
+    append!(vals, f(j))
+end
+
+@testset "equilibrium" begin
+
+  J₀ = @acset IsingModel begin
+    V1 = 5
+    V2 = 4
+    L1 = 2
+    L2 = 1
+    E = 8
+    src1 = [1,2]
+    tgt1 = [2,3]
+    src2 = [1]
+    tgt2 = [3]
+    p = [1, 3, 3, 3, 4, 4, 5, 5]
+    q = [2, 2, 3, 4, 2, 4, 4, 3]
+  end
+
+  run_ising(J₀, 0.5, 100, calculate_hamiltonian)
+
+  to_graphviz(J₀)
+
+end 
