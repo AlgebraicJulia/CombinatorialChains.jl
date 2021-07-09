@@ -6,8 +6,9 @@ import Catlab.Graphics: to_graphviz
 
 include("ConjuctionQueryHomomorphism.jl")
 
-export IsingModel, SchemaIsingModel, calculate_hamiltonian, ising_state_accept, ΔE, p_transition,
-  rulel, ruler, rule, rewrite_ising
+export IsingModel, SchemaIsingModel,SymmetricIsingModel, SymmetricSchemaIsingModel,
+calculate_hamiltonian, ising_state_accept, ΔE, p_transition, rulel, ruler, rule,
+rewrite_ising
 
 
 # Schema for the (two state) Ising model
