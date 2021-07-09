@@ -241,12 +241,10 @@ end
   to_graphviz(J₁)
 
 
-  function rewrite_ising(j::IsingCats.AbstractIsingModel, T, maxtries=100)
+  function rewrite_ising(j::IsingCats.AbstractIsingModel, T, maxrules=10, maxtries=100)
     # choose a random rule
-    k = 0
-    while k < maxtries
+    for k in 1:maxrules
       l,r = rule(rand(0:4))
-      # l,r = rule(4)
       if rand(Bool)
         r,l = l,r
       end
@@ -264,38 +262,36 @@ end
         length(unique(collect(components(α).V1))) == length(collect(components(α).V1))
       end
 
-      @show length(αs)
-      for α in αs
-        println(components(α).V1)
-      end
-
       αs = filter(α->valid_dpo(l, α), αs)
       @show length(αs)
-
       if length(αs) > 0
-
         for i in 1:maxtries
           # compute table of matches
           # pick random match
-          @show ρ = rand(1:length(αs))
+          ρ = rand(1:length(αs))
           α = αs[ρ]
-          @show components(α)
           @show valid_dpo(l, α)
 
           if valid_dpo(l, α) && accept_rewrite((l,r), T)
-            @show
             # Rewrite
-            rewrite_match(l, r, α)
-            return α
+            j′ = rewrite_match(l, r, α)
+            return j′
           end
         end
-        k+=1
       end
     end
 
     error("Could not find a valid match in $maxtries attempts")
   end
 #
-#   J = rewrite_ising(J₀, 2, 4)
-#   to_graphviz(J)
+  J₀ = @acset IsingModel begin 
+    V1 = 9
+    L1 = 12
+    src1 = [1,2,5,5,5,5,7,8,3,6,1,4]
+    tgt1 = [2,3,2,4,6,8,8,9,6,9,4,7]
+  end
+  J = rewrite_ising(J₀, 2, 40, 100)
+  to_graphviz(J₀)
+  to_graphviz(J)
+  @test nparts(J, :V2) == 1
 # end

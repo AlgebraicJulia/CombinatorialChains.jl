@@ -204,7 +204,7 @@ function accept_rewrite(rewrite_span, T)
     Δ = ΔE(codom(rewrite_span[1]), codom(rewrite_span[2]))
     if Δ < 0
         return true
-    elseif exp(-Δ/(T))>rand(Float64, 2)
+    elseif exp(-Δ/(T))>rand(Float64)
         return true
     else
         return false
