@@ -22,7 +22,7 @@ uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
 [[Catlab]]
 deps = ["AutoHashEquals", "Compose", "DataStructures", "FunctionWrappers", "GeneralizedGenerated", "JSON", "LightXML", "LinearAlgebra", "Logging", "MLStyle", "Pkg", "PrettyTables", "Random", "Reexport", "Requires", "SparseArrays", "StaticArrays", "Statistics", "Tables", "TypedTables"]
-path = "dev/Catlab"
+git-tree-sha1 = "4e5017526381350c33b4c4ab76ecd18f7830e45b"
 uuid = "134e5e36-593f-5add-ad60-77f754baafbe"
 version = "0.12.3"
 

@@ -6,7 +6,23 @@ import Catlab.Graphics: to_graphviz
 
 include("ConjuctionQueryHomomorphism.jl")
 
-export IsingModel, SchemaIsingModel, calculate_hamiltonian
+export IsingModel, SchemaIsingModel, calculate_hamiltonian, ising_state_accept
+
+"Calculates Hamiltonian of Ising State"
+function calculate_hamiltonian(ising_state::CSet, J::Number=1, μ::Number=0.1)
+  return J * length(ising_state.tables.E) - μ * (length(ising_state.tables.V1) - length(ising_state.tables.V2))
+end
+
+"""
+Calculates the probability of flipping state based on ΔH.  Takes two Ising States as arguments and returns a tuple 
+consisting of a boolean and the value of ΔH.
+"""
+function ising_state_accept(state1::CSet, state2::CSet, β::Float64 = 0.42)
+  ΔE = calculate_hamiltonian(state2) - calculate_hamiltonian(state1)
+  𝜰 = exp(-β * ΔE)
+  return ((rand() < 𝜰), ΔE)
+end
+
 
 # Schema for the (two state) Ising model
 @present SchemaIsingModel(FreeSchema) begin
@@ -23,6 +39,8 @@ export IsingModel, SchemaIsingModel, calculate_hamiltonian
   q::Hom(E, V2)
 
 end
+
+# Create abstract and concrete types for IsingModel
 
 const AbstractIsingModel = AbstractACSetType(SchemaIsingModel)
 
