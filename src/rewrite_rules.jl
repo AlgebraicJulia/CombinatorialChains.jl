@@ -41,7 +41,7 @@ function ruler(i::Integer)
   R[:, :src2] = nparts(R,:V2)
   R[:, :tgt2] = 1:nparts(R,:V2)-1
 
-  h1 = 1:i
+  h1 = 2:nparts(R,:V1)
   h2 = 1:4-i
 
   r = ACSetTransformation(I, R, V1=h1, V2=h2);
