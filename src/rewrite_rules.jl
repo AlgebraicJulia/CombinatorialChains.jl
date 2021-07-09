@@ -16,7 +16,7 @@ function rulel(i::Integer)
   L[:, :src1] = 1
   L[:, :tgt1] = 2:nparts(L,:V1)
 
-  h1 = 1:i
+  h1 = 2:nparts(L,:V1)
   h2 = 1:4-i
 
   l = ACSetTransformation(I, L, V1=h1, V2=h2);
