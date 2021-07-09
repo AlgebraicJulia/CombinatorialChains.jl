@@ -1,4 +1,5 @@
-include("../src/IsingCats.jl")
+#include("../src/IsingCats.jl")
+using IsingCats
 using IsingCats.ConjunctiveQueryHomomorphism
 using Test
 
@@ -213,22 +214,31 @@ to_graphviz(homomorphism_query(a), junction_labels=:variable, box_labels=:name)
 end
 
 # @testset "Sampling" begin
-#   J₀ = @acset IsingModel begin
-#     V1 = 5
-#     V2 = 4
-#     L1 = 2
-#     L2 = 1
-#     E = 8
-#     src1 = [1,2]
-#     tgt1 = [2,3]
-#     src2 = [1]
-#     tgt2 = [3]
-#     p = [1, 3, 3, 3, 4, 4, 5, 5]
-#     q = [2, 2, 3, 4, 2, 4, 4, 3]
-#   end
-#   to_graphviz(J₀)
-  # m = homomorphisms(codom(rule(4)[1]), J₀, monic=true)[2]
-  # rewrite_match(rule(4)..., m)
+  J₀ = @acset IsingModel begin
+    V1 = 5
+    V2 = 4
+    L1 = 2
+    L2 = 1
+    E = 8
+    src1 = [1,2]
+    tgt1 = [2,3]
+    src2 = [1]
+    tgt2 = [3]
+    p = [1, 3, 3, 3, 4, 4, 5, 5]
+    q = [2, 2, 3, 4, 2, 4, 4, 3]
+  end
+  to_graphviz(J₀)
+
+  J₀ = @acset IsingModel begin 
+    V1 = 9
+    L1 = 12
+    src1 = [1,2,5,5,5,5,7,8,3,6,1,4]
+    tgt1 = [2,3,2,4,6,8,8,9,6,9,4,7]
+  end
+
+  m = homomorphisms(codom(rule(4)[1]), J₀, monic=true)[1]
+  J₁ = rewrite_match(rule(4)..., m)
+  to_graphviz(J₁)
 
 
 #   function rewrite_ising(j::IsingCats.AbstractIsingModel, T, maxtries=100)
