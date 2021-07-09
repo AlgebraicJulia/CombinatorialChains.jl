@@ -46,7 +46,7 @@ add_parts!(c, :L2, 4, src2=[1,2,4,3], tgt2=[2,4,3,1])
 
 ising_states = [a,b,c]
 
-@test [-0.6000000000000001, 1.8, 2.2] == [calculate_hamiltonian(1.0, 0.1, state) for state in ising_states]
+@test [-0.6000000000000001, 1.8, 2.2] == [calculate_hamiltonian(state) for state in ising_states]
 end
 
 
@@ -102,6 +102,41 @@ end
   for i in 1:length(matches)
     @test is_natural(make_homomorphism(matches[i], a, b))
   end
+
+end
+
+@testset "Ising state acceptance" begin
+  state_a = @acset IsingModel begin
+    V1 = 2
+    E = 3
+    V2 =3
+    L1 = 1
+    L2 = 0
+    src1 = [1]
+    tgt1 = [2]
+    p = [2,2,2]
+    q = [1,2,3]
+    src2 = []
+    tgt2 = []
+  end
+
+  state_b = @acset IsingModel begin
+    V1 = 1
+    E = 1
+    V2 = 4
+    L1 = 0
+    L2 = 3
+    src1 = []
+    tgt1 = []
+    p = [1]
+    q = [2]
+    src2 = [2,2,2]
+    tgt2 = [1,3,4]
+  end
+
+  @test calculate_hamiltonian(state_a) == 3.1
+  @test calculate_hamiltonian(state_b) == 1.3
+  @test ising_state_accept(state_a,state_b) == (true, -1.8)
 
 end
 
