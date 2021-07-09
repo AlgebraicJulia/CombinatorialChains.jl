@@ -6,22 +6,8 @@ import Catlab.Graphics: to_graphviz
 
 include("ConjuctionQueryHomomorphism.jl")
 
-export IsingModel, SchemaIsingModel, calculate_hamiltonian, ising_state_accept
-
-"Calculates Hamiltonian of Ising State"
-function calculate_hamiltonian(ising_state::CSet, J::Number=1, μ::Number=0.1)
-  return J * length(ising_state.tables.E) - μ * (length(ising_state.tables.V1) - length(ising_state.tables.V2))
-end
-
-"""
-Calculates the probability of flipping state based on ΔH.  Takes two Ising States as arguments and returns a tuple 
-consisting of a boolean and the value of ΔH.
-"""
-function ising_state_accept(state1::CSet, state2::CSet, β::Float64 = 0.42)
-  ΔE = calculate_hamiltonian(state2) - calculate_hamiltonian(state1)
-  𝜰 = exp(-β * ΔE)
-  return ((rand() < 𝜰), ΔE)
-end
+export IsingModel, SchemaIsingModel, calculate_hamiltonian, ising_state_accept, ΔE, p_transition,
+  rulel, ruler, rule, rewrite_ising
 
 
 # Schema for the (two state) Ising model
@@ -41,9 +27,7 @@ end
 end
 
 # Create abstract and concrete types for IsingModel
-
 const AbstractIsingModel = AbstractACSetType(SchemaIsingModel)
-
 const IsingModel = ACSetType(SchemaIsingModel, index=[:src1,:tgt1,:src2,:tgt2])
 
 function to_graphviz(j::AbstractIsingModel;
@@ -99,52 +83,54 @@ function to_graphviz(j::AbstractIsingModel;
   return to_graphviz(pg)
 end
 
-function calculate_hamiltonian(J::Number, μ::Number, ising_model::CSet)
-  return J * length(ising_model.tables.E) - μ * (length(ising_model.tables.V1) - length(ising_model.tables.V2))
+"""Calculates Hamiltonian of Ising State"""
+function calculate_hamiltonian(ising_state::CSet, J::Number=1, μ::Number=0.1)
+  return J * nparts(ising_state, :E) - μ * (nparts(ising_state, :V1) - nparts(ising_state, :V2))
 end
 
-function ΔE(span)
+# TODO: remove this method because it is redundant
+function calculate_hamiltonian(J::Number, μ::Number, ising_state::CSet)
+  return calculate_hamiltonian(ising_state, J, μ)
 end
 
-function generate_state(N::int)
+ΔE(state₁::AbstractIsingModel, state₂::AbstractIsingModel) = begin
+  calculate_hamiltonian(state₂) - calculate_hamiltonian(state₁)
+end
+
+"""    p_transition(state₁, state₂, β)
+
+Compute the probability of changing from state₁ to state₂ based on the change in energy
+"""
+function p_transition(state₁::ACSet, state₂::ACSet, β::Float64=0.42)
+  𝜰 = exp(-β * ΔE(state₁, state₂))
+end
+
+"""    ising_state_accept(state₁, state₂, β)
+
+Calculates the probability of flipping state based on ΔE.  Takes two Ising States as arguments and returns a tuple
+consisting of a boolean and the value of ΔE. Where E is the Energy Hamiltonian (sometimes called H)
+"""
+function ising_state_accept(state1::CSet, state2::CSet, β::Float64 = 0.42)
+  𝜰 = p_transition(state1, state2, β)
+  return ((rand() < 𝜰), ΔE(state1, state2))
+end
+
+function generate_state(n::Int, m::Int)
 end
 
 function accept_rewrite(rewrite_span, T)
 
     ΔE = ΔE(rewrite_span)
-
-    if ΔE < 0:
+    if ΔE < 0
         return true
-
-    elif exp(-ΔE/(T))>rand(Float64, 2):
+    elseif exp(-ΔE/(T))>rand(Float64, 2)
         return true
-    else:
+    else
         return false
+    end
  end
 
-function rewrite_ising(j::AbstractIsingModel, rewrite_rules, T):
+include("rewrite_rules.jl")
 
-  dpo_search = true
-
-  while dpo_search:
-    # Compute table of matches
-    span = rewrite_rules[rand(1:length(reqrite_rules))]
-    qₗ = homomorphism_query(codom(left(span)))
-    matches = query(b, qₗ)
-    α = make_homomorphism(matches[rand(1:length(rewrite_rules))], codom(left(span)), j)
-
-    if valid_dpo(left(span), α) and accept_rewrite(span, T):
-      # Rewrite
-      rewrite_match(α, right(span), left(span))
-      dpo_search = false
-
-    end
-  end
-
-
-end
-
-function find_equilibrium()
-end
 
 end
