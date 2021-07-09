@@ -241,7 +241,7 @@ end
   to_graphviz(J₁)
 
 
-  function rewrite_ising(j::IsingCats.AbstractIsingModel, T, maxrules=10, maxtries=100)
+  function rewrite_ising(j::IsingCats.AbstractIsingModel, T, maxrules=25, maxtries=100)
     # choose a random rule
     for k in 1:maxrules
       l,r = rule(rand(0:4))
@@ -295,3 +295,33 @@ end
   to_graphviz(J)
   @test nparts(J, :V2) == 1
 # end
+
+
+function run_ising(j::IsingCats.AbstractIsingModel, T, n::Int, f)
+  vals = Any[]
+  for i in 1:n
+    j = rewrite_ising(j, T)
+    push!(vals, f(j))
+  end
+  return j
+end
+
+  @testset "sampler" begin
+
+  J₀ = @acset IsingModel begin
+    V1 = 5
+    V2 = 4
+    L1 = 2
+    L2 = 1
+    E = 8
+    src1 = [1,2]
+    tgt1 = [2,3]
+    src2 = [1]
+    tgt2 = [3]
+    p = [1, 3, 3, 3, 4, 4, 5, 5]
+    q = [2, 2, 3, 4, 2, 4, 4, 3]
+  end
+
+  J = run_ising(J₀, 2, 100, calculate_hamiltonian)
+  to_graphviz(J)
+end
