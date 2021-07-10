@@ -8,7 +8,7 @@ include("ConjuctionQueryHomomorphism.jl")
 
 export IsingModel, SchemaIsingModel,SymmetricIsingModel, SymmetricSchemaIsingModel,
 calculate_hamiltonian, ising_state_accept, ΔE, p_transition, rulel, ruler, rule,
-rewrite_ising, accept_rewrite
+rewrite_ising, accept_rewrite, symmetrise
 
 
 # Schema for the (two state) Ising model
@@ -57,6 +57,28 @@ const AbstractSymmetricIsingModel = AbstractACSetType(SymmetricSchemaIsingModel)
 """
 const SymmetricIsingModel = CSetType(SymmetricSchemaIsingModel, index=[:src1,:tgt1,:src2,:tgt2])
 
+
+function symmetrise(j::IsingModel)
+  k = IsingModel()
+  for v₁ in parts(j, :V1)
+    add_parts!(k, :V1, 1)
+  end
+  for v₂ in parts(j, :V2)
+    add_parts!(k, :V2, 1)
+  end
+  for e in parts(j, :E)
+    add_parts!(k, :E, 1, p=j[e, :p], q=j[e,:q])
+  end
+  for e₁ in parts(j, :L1)
+    add_parts!(k, :L1, 1, src1=j[e₁, :src1], tgt1=j[e₁,:tgt1])
+    add_parts!(k, :L1, 1, src1=j[e₁, :tgt1], tgt1=j[e₁,:src1])
+  end
+  for e₂ in parts(j, :L2)
+    add_parts!(k, :L2, 1, src2=j[e₂, :src2], tgt2=j[e₂,:tgt2])
+    add_parts!(k, :L2, 1, src2=j[e₂, :tgt2], tgt2=j[e₂,:src2])
+  end
+  return k
+end
 
 function to_graphviz(j::AbstractIsingModel;
   prog::AbstractString="neato", graph_attrs::AbstractDict=Dict(),
