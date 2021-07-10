@@ -300,28 +300,25 @@ end
 function run_ising(j::IsingCats.AbstractIsingModel, T, n::Int, f)
   vals = Any[]
   for i in 1:n
-    j = rewrite_ising(j, T)
+    j = rewrite_ising(j, T, 40, 100)
     push!(vals, f(j))
   end
   return j
 end
 
-  @testset "sampler" begin
+  # @testset "sampler" begin
 
-  J₀ = @acset IsingModel begin
-    V1 = 5
-    V2 = 4
-    L1 = 2
-    L2 = 1
-    E = 8
-    src1 = [1,2]
-    tgt1 = [2,3]
-    src2 = [1]
-    tgt2 = [3]
-    p = [1, 3, 3, 3, 4, 4, 5, 5]
-    q = [2, 2, 3, 4, 2, 4, 4, 3]
+  J₀ = @acset IsingModel begin 
+    V1 = 9
+    L1 = 12
+    src1 = [1,2,5,5,5,5,7,8,3,6,1,4]
+    tgt1 = [2,3,2,4,6,8,8,9,6,9,4,7]
   end
-
-  J = run_ising(J₀, 2, 100, calculate_hamiltonian)
+  J = run_ising(J₀, 2, 6, calculate_hamiltonian)
+  @test nparts(J, :V2) <= 1
+  J = run_ising(J₀, 2, 5, calculate_hamiltonian)
+  @test nparts(J, :V2) <= 1
   to_graphviz(J)
-end
+
+  
+# end
