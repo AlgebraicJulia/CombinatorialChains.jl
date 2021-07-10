@@ -7,6 +7,31 @@ using Catlab, Catlab.Theories, Catlab.CategoricalAlgebra, Catlab.CategoricalAlge
 using Catlab.WiringDiagrams
 import Catlab.Graphics: to_graphviz
 
+function symmetrise(j::IsingModel)
+  k = IsingModel()
+
+  for v₁ in parts(j, :V1)
+    add_parts!(k, :V1, 1)
+  end
+  for v₂ in parts(j, :V2)
+    add_parts!(k, :V2, 1)
+  end
+  for e in parts(j, :E)
+    add_parts!(k, :E, 1, p=j[e, :p], q=j[e,:q])
+  end
+  for e₁ in parts(j, :L1)
+    add_parts!(k, :L1, 1, src1=j[e₁, :src1], tgt1=j[e₁,:tgt1])
+    add_parts!(k, :L1, 1, src1=j[e₁, :tgt1], tgt1=j[e₁,:src1])
+  end
+  for e₂ in parts(j, :L2)
+    add_parts!(k, :L2, 1, src2=j[e₂, :src2], tgt2=j[e₂,:tgt2])
+    add_parts!(k, :L2, 1, src2=j[e₂, :tgt2], tgt2=j[e₂,:src2])
+  end
+
+  return k
+
+end
+
 # Create an instance of that schema
 @testset "Constructors" begin
 i = IsingModel()
@@ -19,6 +44,13 @@ add_parts!(i, :L2, 0, src2=[], tgt2=[])
 @test nparts(i, :V1) == 3
 @test nparts(i, :V2) == 1
 
+i₂ = symmetrise(i)
+
+@test nparts(i₂, :V1) == 3
+@test nparts(i₂, :V2) == 1
+@test nparts(i₂, :E) == 2
+@test nparts(i₂, :L1) == 4
+@test nparts(i₂, :L2) == 0
 end
 
 #Test Hamiltonian function
@@ -215,28 +247,15 @@ end
 
 # @testset "Sampling" begin
   J₀ = @acset IsingModel begin
-    V1 = 5
-    V2 = 4
-    L1 = 2
-    L2 = 1
-    E = 8
-    src1 = [1,2]
-    tgt1 = [2,3]
-    src2 = [1]
-    tgt2 = [3]
-    p = [1, 3, 3, 3, 4, 4, 5, 5]
-    q = [2, 2, 3, 4, 2, 4, 4, 3]
-  end
-  to_graphviz(J₀)
-
-  J₀ = @acset IsingModel begin 
     V1 = 9
     L1 = 12
     src1 = [1,2,5,5,5,5,7,8,3,6,1,4]
     tgt1 = [2,3,2,4,6,8,8,9,6,9,4,7]
   end
 
-  m = homomorphisms(codom(rule(4)[1]), J₀, monic=true)[1]
+  J₀ˢ = symmetrise(J₀)
+
+  m = homomorphisms(codom(rule(4)[1]), J₀ˢ, monic=true)[1]
   J₁ = rewrite_match(rule(4)..., m)
   to_graphviz(J₁)
 
@@ -284,13 +303,14 @@ end
     error("Could not find a valid match in $maxtries attempts")
   end
 #
-  J₀ = @acset IsingModel begin 
+  J₀ = @acset IsingModel begin
     V1 = 9
     L1 = 12
     src1 = [1,2,5,5,5,5,7,8,3,6,1,4]
     tgt1 = [2,3,2,4,6,8,8,9,6,9,4,7]
   end
-  J = rewrite_ising(J₀, 2, 40, 100)
+  J₀ˢ = symmetrise(J₀)
+  J = rewrite_ising(J₀ˢ, 2, 40, 100)
   to_graphviz(J₀)
   to_graphviz(J)
   @test nparts(J, :V2) == 1
@@ -322,6 +342,8 @@ end
     q = [2, 2, 3, 4, 2, 4, 4, 3]
   end
 
-  J = run_ising(J₀, 2, 100, calculate_hamiltonian)
+  J₀ˢ = symmetrise(J₀)
+
+  J = run_ising(J₀ˢ, 2, 100, calculate_hamiltonian)
   to_graphviz(J)
 end
