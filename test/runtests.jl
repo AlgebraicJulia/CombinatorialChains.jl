@@ -236,49 +236,6 @@ end
   to_graphviz(J₁)
 
 
-  function rewrite_ising(j::IsingCats.AbstractIsingModel, T, maxrules=25, maxtries=100)
-    # choose a random rule
-    for k in 1:maxrules
-      l,r = rule(rand(0:4))
-      if rand(Bool)
-        r,l = l,r
-      end
-
-      qₗ = homomorphism_query(codom(l))
-      matches = query(j, qₗ)
-      @show length(matches)
-
-      αs = map(ρ -> make_homomorphism(matches[ρ], codom(l), j),
-         1:length(matches))
-
-
-      # quick hack for "monic on V1"
-      αs = filter(αs) do α
-        length(unique(collect(components(α).V1))) == length(collect(components(α).V1))
-      end
-
-      αs = filter(α->valid_dpo(l, α), αs)
-      @show length(αs)
-      if length(αs) > 0
-        for i in 1:maxtries
-          # compute table of matches
-          # pick random match
-          ρ = rand(1:length(αs))
-          α = αs[ρ]
-          @show valid_dpo(l, α)
-
-          if valid_dpo(l, α) && accept_rewrite((l,r), T)
-            # Rewrite
-            j′ = rewrite_match(l, r, α)
-            return j′
-          end
-        end
-      end
-    end
-
-    error("Could not find a valid match in $maxtries attempts")
-  end
-#
   J₀ = @acset IsingModel begin
     V1 = 9
     L1 = 12
@@ -286,20 +243,12 @@ end
     tgt1 = [2,3,2,4,6,8,8,9,6,9,4,7]
   end
   J₀ˢ = symmetrise(J₀)
-  J = rewrite_ising(J₀ˢ, 2, 40, 100)
+  J = rewrite_ising(J₀ˢ, 2)
   to_graphviz(J₀)
   to_graphviz(J)
-  @test nparts(J, :V2) == 1
+  @test nparts(J, :V2) <= 1
 # end
 
-function run_ising(j::IsingCats.AbstractIsingModel, T, n::Int, f)
-  vals = Any[]
-  for i in 1:n
-    j = rewrite_ising(j, T, 40, 100)
-    push!(vals, f(j))
-  end
-  return j
-end
 
 @testset "sampler" begin
   J₀ = @acset IsingModel begin 
@@ -319,128 +268,17 @@ end
 
 # Random state Generation
 
-state = @acset IsingModel begin
 
-  V1 = 0
-  V2 = 0
-  L1 = 0
-  L2 = 0
-  E = 0
-  src1 = []
-  tgt1 = []
-  src2 = []
-  tgt2 = []
-  p = []
-  q = []
-end
+J100 = symmetrise(generate_state(10,10))
 
 
-using Random
+to_graphviz(J100)
 
-grid = Bool[1 1 1; 0 1 0; 1 0 1]
-blue = findall(x -> x == true, grid)
-orange = findall(x -> x == false, grid)
+J100′ = run_ising(J100, 100, 100, calculate_hamiltonian)
+to_graphviz(J100′)
 
+J100′ = run_ising(J100, 1, 100, calculate_hamiltonian)
+to_graphviz(J100′)
 
-
-function generate_state(n::Int, m::Int)
-  grid = bitrand(n,m)
-  #grid = Bool[1 1 0 1; 0 1 1 1; 1 0 0 0; 0 1 0 1]
-  #grid = Bool[1 1 1; 0 1 0; 1 0 1]
-  V1 = sum(grid)
-  V2 = (n*m) - V1
-  L1 = 0
-  L2 = 0
-  E = 0
-  src1 = []
-  tgt1 = []
-  src2 = []
-  tgt2 = []
-  p = []
-  q = []
-  blue = findall(x -> x == true, grid)
-  orange = findall(x -> x == false, grid)
-  for i=2:n
-    for j=1:m
-      if grid[i-1,j] == grid[i,j] == true
-        L1 += 1
-        push!(src1, findfirst(x -> x == CartesianIndex(i,j), blue))
-        push!(tgt1, findfirst(x -> x == CartesianIndex(i-1,j), blue))
-      elseif grid[i-1,j] == grid[i,j] == false
-        L2 += 1
-        push!(src2, findfirst(x -> x == CartesianIndex(i,j), orange))
-        push!(tgt2, findfirst(x -> x == CartesianIndex(i-1,j), orange))
-      elseif grid[i-1,j] != grid[i,j]
-        E += 1
-        if grid[i,j] == true
-          push!(q, findfirst(x -> x == CartesianIndex(i-1,j), orange))
-          push!(p, findfirst(x -> x == CartesianIndex(i,j), blue))
-        elseif grid[i,j] == false
-          push!(q, findfirst(x -> x == CartesianIndex(i,j), orange))
-          push!(p, findfirst(x -> x == CartesianIndex(i-1,j), blue))
-        end
-     end
-    end
-  end
-
-  for i=1:n
-    for j=2:m
-      if grid[i,j-1] == grid[i,j] == true
-        L1 += 1
-        push!(src1, findfirst(x -> x == CartesianIndex(i,j), blue))
-        push!(tgt1, findfirst(x -> x == CartesianIndex(i,j-1), blue))
-      elseif grid[i,j-1] == grid[i,j] == false
-        L2 += 1
-        push!(src2, findfirst(x -> x == CartesianIndex(i,j), orange))
-        push!(tgt2, findfirst(x -> x == CartesianIndex(i,j-1), orange))
-      elseif grid[i,j-1] != grid[i,j]
-        E += 1
-        if grid[i,j] == true
-          push!(q, findfirst(x -> x == CartesianIndex(i,j-1), orange))
-          push!(p, findfirst(x -> x == CartesianIndex(i,j), blue))
-        elseif grid[i,j] == false
-          push!(q, findfirst(x -> x == CartesianIndex(i,j), orange))
-          push!(p, findfirst(x -> x == CartesianIndex(i,j-1), blue))
-        end
-      end
-    end
-  end
-  
-  return (V1, V2, L1, L2, E, src1, tgt1, src2, tgt2, p, q, grid)
-end
-
-test = generate_state(100,100)
-
-#state_ref = @acset IsingModel begin
-#
-#  V1 = 2
-#  V2 = 3
-#  L1 = 1
-#  L2 = 0
-#  E = 3
-#  src1 = [2]
-#  tgt1 = [1]
-#  src2 = []
-#  tgt2 = []
-#  p = [2,2,2]
-#  q = [1,2,3]
-#end
-
-#to_graphviz(state_ref)
-
-state_test = @acset IsingModel begin
-
-  V1 = test[1]
-  V2 = test[2]
-  L1 = test[3]
-  L2 = test[4]
-  E = test[5]
-  src1 = test[6]
-  tgt1 = test[7]
-  src2 = test[8]
-  tgt2 = test[9]
-  p = test[10]
-  q = test[11]
-end
-
-to_graphviz(state_test)
+J100′′ = run_ising(J100′, 1e-1, 100, calculate_hamiltonian)
+to_graphviz(J100′′)
