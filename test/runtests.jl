@@ -299,3 +299,131 @@ end
 #   J = rewrite_ising(J₀, 2, 4)
 #   to_graphviz(J)
 # end
+
+# Random state Generation
+
+state = @acset IsingModel begin
+
+  V1 = 0
+  V2 = 0
+  L1 = 0
+  L2 = 0
+  E = 0
+  src1 = []
+  tgt1 = []
+  src2 = []
+  tgt2 = []
+  p = []
+  q = []
+end
+
+
+using Random
+
+grid = Bool[1 1 1; 0 1 0; 1 0 1]
+blue = findall(x -> x == true, grid)
+orange = findall(x -> x == false, grid)
+
+
+
+function generate_state(n::Int, m::Int)
+  grid = bitrand(n,m)
+  #grid = Bool[1 1 0 1; 0 1 1 1; 1 0 0 0; 0 1 0 1]
+  #grid = Bool[1 1 1; 0 1 0; 1 0 1]
+  V1 = sum(grid)
+  V2 = (n*m) - V1
+  L1 = 0
+  L2 = 0
+  E = 0
+  src1 = []
+  tgt1 = []
+  src2 = []
+  tgt2 = []
+  p = []
+  q = []
+  blue = findall(x -> x == true, grid)
+  orange = findall(x -> x == false, grid)
+  for i=2:n
+    for j=1:m
+      if grid[i-1,j] == grid[i,j] == true
+        L1 += 1
+        push!(src1, findfirst(x -> x == CartesianIndex(i,j), blue))
+        push!(tgt1, findfirst(x -> x == CartesianIndex(i-1,j), blue))
+      elseif grid[i-1,j] == grid[i,j] == false
+        L2 += 1
+        push!(src2, findfirst(x -> x == CartesianIndex(i,j), orange))
+        push!(tgt2, findfirst(x -> x == CartesianIndex(i-1,j), orange))
+      elseif grid[i-1,j] != grid[i,j]
+        E += 1
+        if grid[i,j] == true
+          push!(q, findfirst(x -> x == CartesianIndex(i-1,j), orange))
+          push!(p, findfirst(x -> x == CartesianIndex(i,j), blue))
+        elseif grid[i,j] == false
+          push!(q, findfirst(x -> x == CartesianIndex(i,j), orange))
+          push!(p, findfirst(x -> x == CartesianIndex(i-1,j), blue))
+        end
+     end
+    end
+  end
+
+  for i=1:n
+    for j=2:m
+      if grid[i,j-1] == grid[i,j] == true
+        L1 += 1
+        push!(src1, findfirst(x -> x == CartesianIndex(i,j), blue))
+        push!(tgt1, findfirst(x -> x == CartesianIndex(i,j-1), blue))
+      elseif grid[i,j-1] == grid[i,j] == false
+        L2 += 1
+        push!(src2, findfirst(x -> x == CartesianIndex(i,j), orange))
+        push!(tgt2, findfirst(x -> x == CartesianIndex(i,j-1), orange))
+      elseif grid[i,j-1] != grid[i,j]
+        E += 1
+        if grid[i,j] == true
+          push!(q, findfirst(x -> x == CartesianIndex(i,j-1), orange))
+          push!(p, findfirst(x -> x == CartesianIndex(i,j), blue))
+        elseif grid[i,j] == false
+          push!(q, findfirst(x -> x == CartesianIndex(i,j), orange))
+          push!(p, findfirst(x -> x == CartesianIndex(i,j-1), blue))
+        end
+      end
+    end
+  end
+  
+  return (V1, V2, L1, L2, E, src1, tgt1, src2, tgt2, p, q, grid)
+end
+
+test = generate_state(100,100)
+
+#state_ref = @acset IsingModel begin
+#
+#  V1 = 2
+#  V2 = 3
+#  L1 = 1
+#  L2 = 0
+#  E = 3
+#  src1 = [2]
+#  tgt1 = [1]
+#  src2 = []
+#  tgt2 = []
+#  p = [2,2,2]
+#  q = [1,2,3]
+#end
+
+#to_graphviz(state_ref)
+
+state_test = @acset IsingModel begin
+
+  V1 = test[1]
+  V2 = test[2]
+  L1 = test[3]
+  L2 = test[4]
+  E = test[5]
+  src1 = test[6]
+  tgt1 = test[7]
+  src2 = test[8]
+  tgt2 = test[9]
+  p = test[10]
+  q = test[11]
+end
+
+to_graphviz(state_test)
