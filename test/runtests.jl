@@ -7,6 +7,7 @@ using Catlab, Catlab.Theories, Catlab.CategoricalAlgebra, Catlab.CategoricalAlge
 using Catlab.WiringDiagrams
 import Catlab.Graphics: to_graphviz
 
+
 # Create an instance of that schema
 @testset "Constructors" begin
 i = IsingModel()
@@ -19,6 +20,13 @@ add_parts!(i, :L2, 0, src2=[], tgt2=[])
 @test nparts(i, :V1) == 3
 @test nparts(i, :V2) == 1
 
+i₂ = symmetrise(i)
+
+@test nparts(i₂, :V1) == 3
+@test nparts(i₂, :V2) == 1
+@test nparts(i₂, :E) == 2
+@test nparts(i₂, :L1) == 4
+@test nparts(i₂, :L2) == 0
 end
 
 #Test Hamiltonian function
@@ -215,28 +223,15 @@ end
 
 # @testset "Sampling" begin
   J₀ = @acset IsingModel begin
-    V1 = 5
-    V2 = 4
-    L1 = 2
-    L2 = 1
-    E = 8
-    src1 = [1,2]
-    tgt1 = [2,3]
-    src2 = [1]
-    tgt2 = [3]
-    p = [1, 3, 3, 3, 4, 4, 5, 5]
-    q = [2, 2, 3, 4, 2, 4, 4, 3]
-  end
-  to_graphviz(J₀)
-
-  J₀ = @acset IsingModel begin 
     V1 = 9
     L1 = 12
     src1 = [1,2,5,5,5,5,7,8,3,6,1,4]
     tgt1 = [2,3,2,4,6,8,8,9,6,9,4,7]
   end
 
-  m = homomorphisms(codom(rule(4)[1]), J₀, monic=true)[1]
+  J₀ˢ = symmetrise(J₀)
+
+  m = homomorphisms(codom(rule(4)[1]), J₀ˢ, monic=true)[1]
   J₁ = rewrite_match(rule(4)..., m)
   to_graphviz(J₁)
 
@@ -284,13 +279,14 @@ end
     error("Could not find a valid match in $maxtries attempts")
   end
 #
-  J₀ = @acset IsingModel begin 
+  J₀ = @acset IsingModel begin
     V1 = 9
     L1 = 12
     src1 = [1,2,5,5,5,5,7,8,3,6,1,4]
     tgt1 = [2,3,2,4,6,8,8,9,6,9,4,7]
   end
-  J = rewrite_ising(J₀, 2, 40, 100)
+  J₀ˢ = symmetrise(J₀)
+  J = rewrite_ising(J₀ˢ, 2, 40, 100)
   to_graphviz(J₀)
   to_graphviz(J)
   @test nparts(J, :V2) == 1
@@ -300,28 +296,24 @@ end
 function run_ising(j::IsingCats.AbstractIsingModel, T, n::Int, f)
   vals = Any[]
   for i in 1:n
-    j = rewrite_ising(j, T)
+    j = rewrite_ising(j, T, 40, 100)
     push!(vals, f(j))
   end
   return j
 end
 
-  @testset "sampler" begin
-
-  J₀ = @acset IsingModel begin
-    V1 = 5
-    V2 = 4
-    L1 = 2
-    L2 = 1
-    E = 8
-    src1 = [1,2]
-    tgt1 = [2,3]
-    src2 = [1]
-    tgt2 = [3]
-    p = [1, 3, 3, 3, 4, 4, 5, 5]
-    q = [2, 2, 3, 4, 2, 4, 4, 3]
-  end
-
-  J = run_ising(J₀, 2, 100, calculate_hamiltonian)
+@testset "sampler" begin
+  J₀ = @acset IsingModel begin 
+    V1 = 9
+    L1 = 12
+    src1 = [1,2,5,5,5,5,7,8,3,6,1,4]
+    tgt1 = [2,3,2,4,6,8,8,9,6,9,4,7]
+  end 
+  J₀ = symmetrise(J₀)
+  J = run_ising(J₀, 2, 6, calculate_hamiltonian)
+  to_graphviz(J)
+  @test nparts(J, :V2) <= 1
+  J = run_ising(J₀, 2, 5, calculate_hamiltonian)
+  @test nparts(J, :V2) <= 1
   to_graphviz(J)
 end
