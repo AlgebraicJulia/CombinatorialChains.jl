@@ -236,49 +236,6 @@ end
   to_graphviz(J₁)
 
 
-  function rewrite_ising(j::IsingCats.AbstractIsingModel, T, maxrules=25, maxtries=100)
-    # choose a random rule
-    for k in 1:maxrules
-      l,r = rule(rand(0:4))
-      if rand(Bool)
-        r,l = l,r
-      end
-
-      qₗ = homomorphism_query(codom(l))
-      matches = query(j, qₗ)
-      @show length(matches)
-
-      αs = map(ρ -> make_homomorphism(matches[ρ], codom(l), j),
-         1:length(matches))
-
-
-      # quick hack for "monic on V1"
-      αs = filter(αs) do α
-        length(unique(collect(components(α).V1))) == length(collect(components(α).V1))
-      end
-
-      αs = filter(α->valid_dpo(l, α), αs)
-      @show length(αs)
-      if length(αs) > 0
-        for i in 1:maxtries
-          # compute table of matches
-          # pick random match
-          ρ = rand(1:length(αs))
-          α = αs[ρ]
-          @show valid_dpo(l, α)
-
-          if valid_dpo(l, α) && accept_rewrite((l,r), T)
-            # Rewrite
-            j′ = rewrite_match(l, r, α)
-            return j′
-          end
-        end
-      end
-    end
-
-    error("Could not find a valid match in $maxtries attempts")
-  end
-#
   J₀ = @acset IsingModel begin
     V1 = 9
     L1 = 12
@@ -286,21 +243,12 @@ end
     tgt1 = [2,3,2,4,6,8,8,9,6,9,4,7]
   end
   J₀ˢ = symmetrise(J₀)
-  J = rewrite_ising(J₀ˢ, 2, 40, 100)
+  J = rewrite_ising(J₀ˢ, 2)
   to_graphviz(J₀)
   to_graphviz(J)
-  @test nparts(J, :V2) == 1
+  @test nparts(J, :V2) <= 1
 # end
 
-
-function run_ising(j::IsingCats.AbstractIsingModel, T, n::Int, f)
-  vals = Any[]
-  for i in 1:n
-    j = rewrite_ising(j, T, 40, 100)
-    push!(vals, f(j))
-  end
-  return j
-end
 
 @testset "sampler" begin
   J₀ = @acset IsingModel begin 
@@ -317,3 +265,20 @@ end
   @test nparts(J, :V2) <= 1
   to_graphviz(J)
 end
+
+# Random state Generation
+
+
+J100 = symmetrise(generate_state(10,10))
+
+
+to_graphviz(J100)
+
+J100′ = run_ising(J100, 100, 100, calculate_hamiltonian)
+to_graphviz(J100′)
+
+J100′ = run_ising(J100, 1, 100, calculate_hamiltonian)
+to_graphviz(J100′)
+
+J100′′ = run_ising(J100′, 1e-1, 100, calculate_hamiltonian)
+to_graphviz(J100′′)
