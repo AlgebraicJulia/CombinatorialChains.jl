@@ -7,30 +7,6 @@ using Catlab, Catlab.Theories, Catlab.CategoricalAlgebra, Catlab.CategoricalAlge
 using Catlab.WiringDiagrams
 import Catlab.Graphics: to_graphviz
 
-function symmetrise(j::IsingModel)
-  k = IsingModel()
-
-  for v₁ in parts(j, :V1)
-    add_parts!(k, :V1, 1)
-  end
-  for v₂ in parts(j, :V2)
-    add_parts!(k, :V2, 1)
-  end
-  for e in parts(j, :E)
-    add_parts!(k, :E, 1, p=j[e, :p], q=j[e,:q])
-  end
-  for e₁ in parts(j, :L1)
-    add_parts!(k, :L1, 1, src1=j[e₁, :src1], tgt1=j[e₁,:tgt1])
-    add_parts!(k, :L1, 1, src1=j[e₁, :tgt1], tgt1=j[e₁,:src1])
-  end
-  for e₂ in parts(j, :L2)
-    add_parts!(k, :L2, 1, src2=j[e₂, :src2], tgt2=j[e₂,:tgt2])
-    add_parts!(k, :L2, 1, src2=j[e₂, :tgt2], tgt2=j[e₂,:src2])
-  end
-
-  return k
-
-end
 
 # Create an instance of that schema
 @testset "Constructors" begin
@@ -320,30 +296,24 @@ end
 function run_ising(j::IsingCats.AbstractIsingModel, T, n::Int, f)
   vals = Any[]
   for i in 1:n
-    j = rewrite_ising(j, T)
+    j = rewrite_ising(j, T, 40, 100)
     push!(vals, f(j))
   end
   return j
 end
 
-  @testset "sampler" begin
-
-  J₀ = @acset IsingModel begin
-    V1 = 5
-    V2 = 4
-    L1 = 2
-    L2 = 1
-    E = 8
-    src1 = [1,2]
-    tgt1 = [2,3]
-    src2 = [1]
-    tgt2 = [3]
-    p = [1, 3, 3, 3, 4, 4, 5, 5]
-    q = [2, 2, 3, 4, 2, 4, 4, 3]
-  end
-
-  J₀ˢ = symmetrise(J₀)
-
-  J = run_ising(J₀ˢ, 2, 100, calculate_hamiltonian)
+@testset "sampler" begin
+  J₀ = @acset IsingModel begin 
+    V1 = 9
+    L1 = 12
+    src1 = [1,2,5,5,5,5,7,8,3,6,1,4]
+    tgt1 = [2,3,2,4,6,8,8,9,6,9,4,7]
+  end 
+  J₀ = symmetrise(J₀)
+  J = run_ising(J₀, 2, 6, calculate_hamiltonian)
+  to_graphviz(J)
+  @test nparts(J, :V2) <= 1
+  J = run_ising(J₀, 2, 5, calculate_hamiltonian)
+  @test nparts(J, :V2) <= 1
   to_graphviz(J)
 end
