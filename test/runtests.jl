@@ -251,12 +251,12 @@ end
 
 
 @testset "sampler" begin
-  J₀ = @acset IsingModel begin 
+  J₀ = @acset IsingModel begin
     V1 = 9
     L1 = 12
     src1 = [1,2,5,5,5,5,7,8,3,6,1,4]
     tgt1 = [2,3,2,4,6,8,8,9,6,9,4,7]
-  end 
+  end
   J₀ = symmetrise(J₀)
   J = run_ising(J₀, 2, 6, calculate_hamiltonian)
   to_graphviz(J)
@@ -274,11 +274,11 @@ J100 = symmetrise(generate_state(10,10))
 
 to_graphviz(J100)
 
-J100′ = run_ising(J100, 100, 100, calculate_hamiltonian)
+J100′ = run_ising(J100, 100, 100, calculate_hamiltonian)[1]
 to_graphviz(J100′)
 
-J100′ = run_ising(J100, 1, 100, calculate_hamiltonian)
+J100′ = run_ising(J100, 1, 100, calculate_hamiltonian)[1]
 to_graphviz(J100′)
 
-J100′′ = run_ising(J100′, 1e-1, 100, calculate_hamiltonian)
+J100′′ = run_ising(J100′, 1e-1, 100, calculate_hamiltonian)[1]
 to_graphviz(J100′′)
