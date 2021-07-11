@@ -1,6 +1,8 @@
 module IsingCats
 
 using Random
+using Statistics
+using Plotly
 using Catlab, Catlab.Theories, Catlab.CategoricalAlgebra, Catlab.CategoricalAlgebra.CSets
 using Catlab.CategoricalAlgebra.DPO, Catlab.Graphs, Catlab.Present, Catlab.Graphics
 using Catlab.WiringDiagrams
@@ -349,12 +351,21 @@ function rewrite_ising(j::IsingCats.AbstractIsingModel, T)
   error("Could not find a valid match in all the rules")
 end
 
+
 function run_ising(j::IsingCats.AbstractIsingModel, T, n::Int, f)
   vals = Any[]
   for i in 1:n
     j = rewrite_ising(j, T)
     push!(vals, f(j))
   end
+  print("Expectation Value:")
+  print(mean(vals))
+
+  my_histo = plot([histogram(x=vals)], Layout(title="Energy Histogram"))
+  my_scatter = plot([scatter(x=1:n,y=vals)], Layout(title="Energy Evolution"))
+
   return j
 end
-end
+
+
+
