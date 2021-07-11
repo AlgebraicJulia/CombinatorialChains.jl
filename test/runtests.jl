@@ -259,10 +259,10 @@ end
     tgt1 = [2,3,2,4,6,8,8,9,6,9,4,7]
   end
   J₀ = symmetrise(J₀)
-  J = run_ising(J₀, 2, 6, calculate_hamiltonian)
+  J = run_ising(J₀, 2, 6, calculate_hamiltonian)[1]
   to_graphviz(J)
   @test nparts(J, :V2) <= 1
-  J = run_ising(J₀, 2, 5, calculate_hamiltonian)
+  J = run_ising(J₀, 2, 5, calculate_hamiltonian)[1]
   @test nparts(J, :V2) <= 1
   to_graphviz(J)
 end
