@@ -2,6 +2,7 @@
 using IsingCats
 using IsingCats.ConjunctiveQueryHomomorphism
 using Test
+using Plots
 
 using Catlab, Catlab.Theories, Catlab.CategoricalAlgebra, Catlab.CategoricalAlgebra.CSets
 using Catlab.WiringDiagrams
@@ -280,5 +281,13 @@ to_graphviz(J100′)
 J100′ = run_ising(J100, 1, 100, calculate_hamiltonian)[1]
 to_graphviz(J100′)
 
-J100′′ = run_ising(J100′, 1e-1, 100, calculate_hamiltonian)[1]
+J100′′ = run_ising(J100, 1e-1, 100, calculate_hamiltonian)[1]
 to_graphviz(J100′′)
+
+@testset "plots" begin
+  J100 = symmetrise(generate_state(10,10))
+  n = 100
+  J100′′, energies = run_ising(J100′, 1e-1, n, calculate_hamiltonian)
+  x = 1:n;
+  plot(x, energies, title = "Energy vs iteration number", label = "energy", lw = 2)
+end
