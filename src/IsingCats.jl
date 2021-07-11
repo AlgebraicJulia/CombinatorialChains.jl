@@ -355,6 +355,6 @@ function run_ising(j::IsingCats.AbstractIsingModel, T, n::Int, f)
     j = rewrite_ising(j, T)
     push!(vals, f(j))
   end
-  return j
+  return j, vals 
 end
 end
