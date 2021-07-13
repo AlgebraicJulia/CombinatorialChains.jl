@@ -1,3 +1,3 @@
-# IsingCats
+# CombinatorialChains
 
-Ising model with C-Sets and DPO's
+C-Set rewriting for Markov Chain simulation.
