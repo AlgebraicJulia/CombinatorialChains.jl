@@ -15,7 +15,7 @@ The Ising chain example has the following schema:
 
 <p align="center">
 <img src=Ising.png alt="ising_schema"
-title="plain_wiring_diagram" width="150"/>
+title="plain_wiring_diagram" width="400"/>
 </p>
 
 C-Sets from this schema are our Ising states. The code proceeds as folllows:
@@ -31,7 +31,7 @@ Below are the results for temperatures T= and T=. As expected, at low temperatur
 
 <p align="center">
 <img src=ising_results.png alt="ising_results"
-title="plain_wiring_diagram" width="150"/>
+title="plain_wiring_diagram" width="800"/>
 </p>
 
 A generalisation of this only requires
