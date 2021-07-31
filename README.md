@@ -20,14 +20,14 @@ title="plain_wiring_diagram" width="400"/>
 
 C-Sets from this schema are our Ising states. The code proceeds as folllows:
 - A random state of up/down spins is generated on an n by n lattice.
-- A rewrite rule is randomly selected from all possible rewrite rules. These rules are stored as spans L<-I->R, where L is the structure we search for in the graph G, and R is what we replace it with. I is the subgraph with homomorphisms (which we call l and r, respectively) into L and R. 
+- A rewrite rule is randomly selected from all possible rewrite rules. These rules are stored as spans L<-I->R, where L is the structure we search for in the graph G, and R is what we replace it with. I is the subgraph with homomorphisms (which we call l and r, respectively) into L and R.
 - If a match for the rewrite rule is found in the Ising graph state, the double pushout (DPO) is performed to form the new state (C-set) H. If not, a new rewrite rule is selected until a match is found.
-- Next, the rewrite rule is either accepted or rejected depending on the temperature of the system. This method of accepting/rejecting is the Metropolis Hastings algorithm.
-- This is repeated 1000 times.
+- Next, the rewrite rule is either accepted or rejected depending on the temperature of the system. The method of accepting/rejecting in the Ising model is given by the Metropolis-Hastings algorithm.
+- This is repeated m times (we set m to 1000).
 
-Moreover, we have implemented function which is able to plot the Ising state C-Set.
+Moreover, we have implemented a function which is able to plot the Ising state C-Set as a via graphviz.
 
-Below are the results for temperatures T= and T=. As expected, at low temperatures spins tend to align with one another, thus reducing interaction energy, while at high temperatures the available thermal energy prevents this from happening.
+Below are the results for temperatures T=1 and T=10. As expected, at low temperatures spins tend to align with one another, thus reducing interaction energy, while at high temperatures the available thermal energy prevents this from happening.
 
 <p align="center">
 <img src=ising_results.png alt="ising_results"
