@@ -14,7 +14,7 @@ Although this machinery is rather heavy for simulating an Ising model, this exam
 The Ising chain example has the following schema:
 
 <p align="center">
-<img src=/Users/amyjade/Documents/ACT2021/combinatorial_chains/images/Ising.png alt="ising_schema"
+<img src=Ising.png alt="ising_schema"
 title="plain_wiring_diagram" width="150"/>
 </p>
 
@@ -30,7 +30,7 @@ Moreover, we have implemented function which is able to plot the Ising state C-S
 Below are the results for temperatures T= and T=. As expected, at low temperatures spins tend to align with one another, thus reducing interaction energy, while at high temperatures the available thermal energy prevents this from happening.
 
 <p align="center">
-<img src=/Users/amyjade/Documents/ACT2021/combinatorial_chains/images/ising_results.png alt="ising_results"
+<img src=ising_results.png alt="ising_results"
 title="plain_wiring_diagram" width="150"/>
 </p>
 
