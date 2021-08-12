@@ -1,10 +1,10 @@
 # CombinatorialChains
 
-The CombinatorialChains Julia library, when complete, will allow for Markov Chain Monte Carlo (MCMC) similation over arbitrary C-Sets. Recall that a C-Set is a copresheaf, which is a functor from some category C to Set.
+The CombinatorialChains.jl Julia library, when complete, will allow for Markov Chain Monte Carlo (MCMC) similation over arbitrary C-Sets. Recall that a C-Set is a copresheaf, which is a functor from some category C to Set.
 
 This is useful because states of a system are isomorphic to C-Sets (or copresheaves) over some choice of schema (which lives in the category C), and while states are usually thought of as instances over some graph-like strucutre, we can in practice generalise this to other types of structures, allowing for abrbitary MCMC simulation.
 
-The MCMC state update is carried out via the double pushout algorithm. Moreover, the schema are built via slice category contructions. As such, concepts of category theory are central to the construction, and indeed the package will rely heavily on other AlgebraicJulia packages once complete (CatLab and CombinatorialSpaces).
+The MCMC state update is carried out via the double pushout algorithm. Moreover, the schema are built via slice category contructions. As such, concepts of category theory are central to the construction, and indeed the package will rely heavily on other AlgebraicJulia packages once complete (Catlab.jl and CombinatorialSpaces.jl).
 
 Example: The Ising Model
 --------------------------
